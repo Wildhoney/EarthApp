@@ -12,6 +12,7 @@ script:
 
 deploy:
   provider: heroku
+  all_branches: true
   api_key:
     secure: YuioFM2WlsB8zXLX70Y/ImMQo5YAraJ5vacFoqt1gLAEHelOzfYFJVRXi1VC2YbiXzBmReWiaY+l1MOZPj0BECyrTn7FipIy3olqa+VTbDgyTMwENNjHHNTS9urdElcJFh3msvS7wq49Y4WgQt/SkJ3WoRaO6yHsqQNIOhD48ps=
   app: earth-app
