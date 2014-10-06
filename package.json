@@ -26,5 +26,8 @@
   "homepage": "https://github.com/Wildhoney/Earth",
   "dependencies": {
     "express": "^4.9.5"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.8"
   }
 }
