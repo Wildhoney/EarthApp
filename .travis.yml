@@ -9,7 +9,7 @@ script:
   - bower install
   - gulp test
   - gulp build
-  
+
 deploy:
   provider: heroku
   api_key:
