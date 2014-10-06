@@ -1,3 +1,11 @@
+(function($angular) {
+
+    "use strict";
+
+    // To hell with good intentions.
+    $angular.module('earthApp', []);
+
+})(window.angular);
 (function($angular, $app, $yaml, $window) {
 
     "use strict";
@@ -148,3 +156,48 @@
     }]);
 
 })(window.angular, window.angular.module('earthApp'), window.jsyaml, window);
+(function($angular) {
+
+    "use strict";
+
+    /**
+     * @module Earth
+     * @author Adam Timberlake
+     * @link https://github.com/Wildhoney/Earth
+     * @controller ApplicationController
+     */
+    $angular.module('earthApp').controller('ApplicationController', ['$scope', function ApplicationController($scope) {
+
+        /**
+         * @property current
+         * @type {Object|null}
+         */
+        $scope.current = { name: null };
+
+        /**
+         * @property interface
+         * @type {Object}
+         */
+        $scope.interface = {
+
+            /**
+             * @property setCountry
+             * @type {Function}
+             */
+            setCountry: $angular.noop
+
+        };
+
+        /**
+         * @method setCountry
+         * @param name {String}
+         * @return {void}
+         */
+        $scope.setCountry = function setCountry(name) {
+            $scope.current.name = name;
+            $scope.interface.setCountry(name);
+        }
+
+    }]);
+
+})(window.angular);

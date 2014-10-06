@@ -1,22 +1,25 @@
 (function() {
 
-    var dependencies  = ['example/js/*.js', 'example/js/*/**.js'],
-        distributions = { dev: 'earth.min.js', prod: 'earth.js' };
+    var dependencies  = 'example/js/application/**/*.js',
+        distributions = { dev: 'earth.js', prod: 'earth.min.js' };
 
     var gulp   = require('gulp'),
         uglify = require('gulp-uglify'),
-        rename = require('gulp-rename'),
+        copy   = require('gulp-copy'),
+        concat = require('gulp-concat'),
         jshint = require('gulp-jshint');
 
-//    gulp.task('build', function gulpBuild(){
-//        gulp.src(mainModule)
-//            .pipe(rename(devDist))
-//            .pipe(gulp.dest('dist'))
-//            .pipe(gulp.dest(vendorDest))
-//            .pipe(rename(minDist))
-//            .pipe(uglify())
-//            .pipe(gulp.dest('dist'))
-//    });
+    gulp.task('build', function() {
+
+        gulp.src(dependencies)
+            .pipe(concat(distributions.dev))
+            .pipe(gulp.dest('./dist/'))
+            .pipe(concat(distributions.prod))
+            .pipe(gulp.dest('./dist/'))
+            .pipe(uglify())
+            .pipe(gulp.dest('dist'))
+
+    });
 
     gulp.task('hint', function gulpHint() {
 
@@ -25,7 +28,7 @@
             .pipe(jshint.reporter('default'));
     });
 
-    gulp.task('test', ['hint', 'karma']);
-    gulp.task('default', ['hint', 'test']);
+    gulp.task('test', ['hint']);
+    gulp.task('default', ['test', 'build']);
 
 })();

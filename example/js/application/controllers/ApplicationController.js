@@ -1,5 +1,7 @@
 (function($angular) {
 
+    "use strict";
+
     /**
      * @module Earth
      * @author Adam Timberlake
