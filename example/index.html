@@ -19,6 +19,32 @@
     <!--<title ng-show="current.name">Earth: Behold {{current.name}}!</title>-->
     <title>Earth</title>
 
+    <!-- Begin Custom Shaders -->
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+
+        varying vec3 vNormal;
+
+        void main() {
+            vNormal     = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+
+    </script>
+
+    <script id="fragmentShader" type="x-shader/x-vertex">
+
+        varying vec3 vNormal;
+
+        void main() {
+            float intensity = pow(0.7 - dot(vNormal, vec3( 0.0, 0.0, 0.8)), 4.0);
+            gl_FragColor    = vec4(1.0, 1.0, 1.2, 1) * intensity;
+        }
+
+    </script>
+
+    <!-- End Custom Shaders -->
+
 </head>
 <body class="colourful">
 

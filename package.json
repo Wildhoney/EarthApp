@@ -1,6 +1,6 @@
 {
   "name": "earth-app",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Three.js w/ Angular implementation of planet earth using Sketchup for the models.",
   "main": "dist/earth.min.js",
   "scripts": {

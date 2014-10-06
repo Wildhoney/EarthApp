@@ -8,7 +8,7 @@
      * @link https://github.com/Wildhoney/Earth
      * @directive Earth
      */
-    $app.directive('earth', ['$http', '$cacheFactory', function EarthDirective($http, $cacheFactory) {
+    $app.directive('earth', ['$window', '$http', '$cacheFactory', function EarthDirective($window, $http, $cacheFactory) {
 
         return {
 
@@ -55,23 +55,64 @@
                 };
 
                 /**
+                 * @method getShader
+                 * @param name {String}
+                 * @return {String}
+                 */
+                $scope.getShader = function getShader(name) {
+                    return $window.document.getElementById(name).textContent;
+                };
+
+                /**
                  * @method renderEarth
                  * @param scene {THREE.Scene}
                  * @return {THREE.Mesh}
                  */
                 $scope.renderEarth = function renderEarth(scene) {
 
-                    var material = new THREE.MeshPhongMaterial({
-                        map: THREE.ImageUtils.loadTexture('images/earth_cloudy_diffuse.jpg'),
-                        bumpMap: THREE.ImageUtils.loadTexture('images/earth_normal.jpg'),
-                        bumpScale: 0.25
-                    });
+                    var mesh    = {},
+                        options = $scope.options.earth;
 
-                    var options  = $scope.options.earth,
-                        sphere   = new THREE.SphereGeometry(options.radius, options.segments, options.rings),
-                        mesh     = new THREE.Mesh(sphere, material);
+                    /**
+                     * @method renderEarth
+                     * @return {void}
+                     */
+                    (function renderEarth() {
 
-                    scene.add(mesh);
+                        var material = new THREE.MeshPhongMaterial({
+                            map: THREE.ImageUtils.loadTexture('images/earth_cloudy_diffuse.jpg'),
+                            bumpMap: THREE.ImageUtils.loadTexture('images/earth_normal.jpg'),
+                            bumpScale: 0.25
+                        });
+
+                        var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
+                        mesh       = new THREE.Mesh(sphere, material);
+
+                        scene.add(mesh);
+
+                    })();
+
+                    /**
+                     * @method renderHalo
+                     * @return {void}
+                     */
+                    (function renderHalo() {
+
+                        var material = new THREE.ShaderMaterial({
+                            uniforms: {},
+                            vertexShader: $scope.getShader('vertexShader'),
+                            fragmentShader: $scope.getShader('fragmentShader'),
+                            side: THREE.BackSide,
+                            blending: THREE.AdditiveBlending,
+                            transparent: true
+                        });
+
+                        var halo = new THREE.SphereGeometry((options.radius + 10), options.segments, options.rings);
+                        var mesh = new THREE.Mesh(halo, material);
+                        scene.add(mesh);
+
+                    })();
+
                     return mesh;
 
                 };
@@ -83,18 +124,28 @@
                  */
                 $scope.renderLights = function renderLights(scene) {
 
+                    // Render the ambient light so that even the darkest areas have a little bit
+                    // of light cast on them.
                     scene.add(new THREE.AmbientLight(0x222222));
 
-                    var options = $scope.options.light,
-                        light   = new THREE.PointLight(0xffffff);
+                    /**
+                     * @method renderPointLight
+                     * @return {void}
+                     */
+                    (function renderPointLight() {
 
-                    light.intensity = 0.75;
-                    light.position.x = -100;
-                    light.position.y = 50;
-                    light.position.z = options['z_position'];
-                    light.castShadow = true;
+                        var options = $scope.options.light,
+                            light   = new THREE.PointLight(0xffffff);
 
-                    scene.add(light);
+                        light.intensity = 0.75;
+                        light.position.x = -100;
+                        light.position.y = 50;
+                        light.position.z = options['z_position'];
+                        light.castShadow = true;
+
+                        scene.add(light);
+
+                    })();
 
                 };
 
