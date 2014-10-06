@@ -8,7 +8,7 @@
      * @link https://github.com/Wildhoney/Earth
      * @directive Earth
      */
-    $app.directive('earth', ['$http', function EarthDirective($http) {
+    $app.directive('earth', ['$http', '$cacheFactory', function EarthDirective($http, $cacheFactory) {
 
         return {
 
@@ -99,7 +99,7 @@
             link: function link(scope, element) {
 
                 // Read the YAML configuration document.
-                $http.get('earth.yaml').then(function then(response) {
+                $http.get('earth.yaml', { cache: $cacheFactory }).then(function then(response) {
 
                     // Parse the YAML configuration!
                     var config      = $yaml.load(response.data),
