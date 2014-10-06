@@ -4,7 +4,8 @@
   "description": "Three.js w/ Angular implementation of planet earth using Sketchup for the models.",
   "main": "dist/earth.min.js",
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "start": "node example/server/default.js"
   },
   "repository": {
     "type": "git",
