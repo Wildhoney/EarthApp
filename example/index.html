@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="earthApp" ng-controller="ApplicationController">
+<head>
+
+    <!-- Dependencies! -->
+    <script type="text/javascript" src="js/vendor/three.js/three.js"></script>
+    <script type="text/javascript" src="js/vendor/angular/angular.js"></script>
+    <script type="text/javascript" src="js/vendor/js-yaml/dist/js-yaml.js"></script>
+
+    <!-- Application! -->
+    <script type="text/javascript" src="js/application/Default.js"></script>
+    <script type="text/javascript" src="js/application/controllers/ApplicationController.js"></script>
+    <script type="text/javascript" src="js/application/directives/Earth.js"></script>
+
+    <!-- Styles! -->
+    <link rel="stylesheet" type="text/css" href="css/Default.css" />
+    <link href="http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic" rel="stylesheet" type="text/css" />
+
+    <!--<title ng-show="current.name">Earth: Behold {{current.name}}!</title>-->
+    <title>Earth</title>
+
+</head>
+<body class="colourful">
+
+    <section class="about">
+        <h1>Earth</h1>
+        <h2>Three.js w/ Angular implementation of planet earth using Sketchup for the models.</h2>
+    </section>
+
+    <!--<a ng-click="setCountry('Argentina')">Goto Argentina</a>]-->
+
+    <earth ng-model="interface"></earth>
+
+</body>
+</html>

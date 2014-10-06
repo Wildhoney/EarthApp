@@ -1,0 +1,60 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    overflow: hidden;
+}
+
+.colourful {
+
+    background:
+        -webkit-linear-gradient(45deg, hsla(285, 83%, 18%, 1) 0%, hsla(285, 83%, 18%, 0) 70%),
+        -webkit-linear-gradient(315deg, hsla(0, 51%, 19%, 1) 10%, hsla(0, 51%, 19%, 0) 80%),
+        -webkit-linear-gradient(225deg, hsla(209, 38%, 24%, 1) 10%, hsla(209, 38%, 24%, 0) 80%),
+        -webkit-linear-gradient(135deg, hsla(195, 99%, 22%, 1) 100%, hsla(195, 99%, 22%, 0) 70%);
+
+    background:
+        linear-gradient(45deg, hsla(285, 83%, 18%, 1) 0%, hsla(285, 83%, 18%, 0) 70%),
+        linear-gradient(135deg, hsla(0, 51%, 19%, 1) 10%, hsla(0, 51%, 19%, 0) 80%),
+        linear-gradient(225deg, hsla(209, 38%, 24%, 1) 10%, hsla(209, 38%, 24%, 0) 80%),
+        linear-gradient(315deg, hsla(195, 99%, 22%, 1) 100%, hsla(195, 99%, 22%, 0) 70%);
+
+}
+
+section.about {
+    position: absolute;
+    text-align: left;
+    color: white;
+    font-family: Lato, Arial, Helvetica, sans-serif;
+    padding: 20px 25px;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, .25);
+}
+
+section.about h1 {
+    font-size: 55px;
+    font-weight: normal;
+}
+
+section.about h2 {
+    font-size: 12px;
+    color: rgba(255, 255, 255, .5);
+    font-weight: normal;
+}
+
+section.about img.earth-icon {
+    width: 40px;
+    float: left;
+    overflow: hidden;
+    margin: 14px 15px 0 0;
+}
+
+earth {
+    display: inline-block;
+    margin: auto;
+}

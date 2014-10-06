@@ -1,0 +1,16 @@
+scene:
+  view_angle: 45
+  near: 0.1
+  far: 10000
+  transparent: true
+
+earth:
+  radius: 50
+  segments: 128
+  rings: 128
+
+camera:
+  z_position: 150
+
+light:
+  z_position: 2000
