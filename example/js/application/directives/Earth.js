@@ -64,6 +64,24 @@
                 };
 
                 /**
+                 * @method addBigBen
+                 * @param earth {THREE.Mesh}
+                 * @return {THREE.Mesh}
+                 */
+                $scope.addBigBen = function addBigBen(earth) {
+
+                    var options = $scope.options,
+                        cube = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10, new THREE.MeshNormalMaterial()));
+                    cube.position.z = 110;
+                    cube.rotation.x = 110;
+                    cube.rotation.y = 110;
+
+                    earth.add(cube);
+                    return cube;
+
+                };
+
+                /**
                  * @method renderEarth
                  * @param scene {THREE.Scene}
                  * @return {THREE.Mesh}
@@ -182,11 +200,19 @@
                     // Render our representation of planet earth to the scene.
                     var earth = scope.renderEarth(scene);
                     scope.renderLights(scene);
+
+                    // Add some landmarks to planet earth!
+//                    var bigBen = scope.addBigBen(earth);
+
+                    earth.rotation.y = 100;
+                    earth.rotation.x = 100;
                     renderer.render(scene, camera);
 
                     // Place in a rendering loop.
                     (function render() {
                         earth.rotation.y += 0.0005;
+                        earth.rotation.x += 0.0001;
+
                         requestAnimationFrame(render);
                         renderer.render(scene, camera);
                     })();
