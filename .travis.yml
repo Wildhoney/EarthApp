@@ -1,0 +1,19 @@
+language: node_js
+
+node_js:
+  - '0.10'
+  - '0.11'
+
+script:
+  - npm install
+  - bower install
+  - gulp test
+  - gulp build
+  
+deploy:
+  provider: heroku
+  api_key:
+    secure: YuioFM2WlsB8zXLX70Y/ImMQo5YAraJ5vacFoqt1gLAEHelOzfYFJVRXi1VC2YbiXzBmReWiaY+l1MOZPj0BECyrTn7FipIy3olqa+VTbDgyTMwENNjHHNTS9urdElcJFh3msvS7wq49Y4WgQt/SkJ3WoRaO6yHsqQNIOhD48ps=
+  app: earth-app
+  on:
+    repo: Wildhoney/Earth
