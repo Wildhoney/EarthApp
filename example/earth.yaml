@@ -3,6 +3,7 @@ scene:
   near: 0.1
   far: 10000
   transparent: true
+  anti_alias: true
 
 earth:
   radius: 50
@@ -13,4 +14,4 @@ camera:
   z_position: 150
 
 light:
-  z_position: 2000
+  z_position: 100

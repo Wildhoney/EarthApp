@@ -57,16 +57,22 @@
                 /**
                  * @method renderEarth
                  * @param scene {THREE.Scene}
-                 * @return {void}
+                 * @return {THREE.Mesh}
                  */
                 $scope.renderEarth = function renderEarth(scene) {
 
+                    var material = new THREE.MeshPhongMaterial({
+                        map: THREE.ImageUtils.loadTexture('images/earth_cloudy_diffuse.jpg'),
+                        bumpMap: THREE.ImageUtils.loadTexture('images/earth_normal.jpg'),
+                        bumpScale: 0.25
+                    });
+
                     var options  = $scope.options.earth,
                         sphere   = new THREE.SphereGeometry(options.radius, options.segments, options.rings),
-                        material = new THREE.MeshLambertMaterial({ color: 0xFFFFFF }),
                         mesh     = new THREE.Mesh(sphere, material);
 
                     scene.add(mesh);
+                    return mesh;
 
                 };
 
@@ -77,12 +83,16 @@
                  */
                 $scope.renderLights = function renderLights(scene) {
 
-                    var options = $scope.options.light,
-                        light   = new THREE.PointLight(0x2AB6FC);
+                    scene.add(new THREE.AmbientLight(0x222222));
 
-                    light.position.x = -300;
-                    light.position.y = 200;
+                    var options = $scope.options.light,
+                        light   = new THREE.PointLight(0xffffff);
+
+                    light.intensity = 0.75;
+                    light.position.x = -100;
+                    light.position.y = 50;
                     light.position.z = options['z_position'];
+                    light.castShadow = true;
 
                     scene.add(light);
 
@@ -103,9 +113,10 @@
 
                     // Parse the YAML configuration!
                     var config      = $yaml.load(response.data),
+                        options     = config.scene,
                         aspectRatio = ($window.innerWidth / $window.innerHeight),
-                        renderer    = new THREE.WebGLRenderer({ alpha: config.scene.transparent }),
-                        camera      = new THREE.PerspectiveCamera(config.scene.angle, aspectRatio, config.scene.near, config.scene.far),
+                        renderer    = new THREE.WebGLRenderer({ alpha: options.transparent, antialias: options['anti_alias'] }),
+                        camera      = new THREE.PerspectiveCamera(options.angle, aspectRatio, options.near, options.far),
                         scene       = new THREE.Scene();
 
                     // Define the options in the controller to prevent us from passing them around
@@ -118,9 +129,16 @@
                     element.append(renderer.domElement);
 
                     // Render our representation of planet earth to the scene.
-                    scope.renderEarth(scene);
+                    var earth = scope.renderEarth(scene);
                     scope.renderLights(scene);
                     renderer.render(scene, camera);
+
+                    // Place in a rendering loop.
+                    (function render() {
+                        earth.rotation.y += 0.0005;
+                        requestAnimationFrame(render);
+                        renderer.render(scene, camera);
+                    })();
 
                 });
 
