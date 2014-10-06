@@ -1,0 +1,27 @@
+{
+  "name": "earth",
+  "version": "0.1.0",
+  "description": "Three.js w/ Angular implementation of planet earth using Sketchup for the models.",
+  "main": "dist/earth.min.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wildhoney/Earth.git"
+  },
+  "keywords": [
+    "earth",
+    "modelling",
+    "model",
+    "sketchup",
+    "three",
+    "angular"
+  ],
+  "author": "Adam Timberlake <adam.timberlake@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Wildhoney/Earth/issues"
+  },
+  "homepage": "https://github.com/Wildhoney/Earth"
+}
