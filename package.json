@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/Wildhoney/Earth/issues"
   },
-  "homepage": "https://github.com/Wildhoney/Earth"
+  "homepage": "https://github.com/Wildhoney/Earth",
+  "dependencies": {
+    "express": "^4.9.5"
+  }
 }
