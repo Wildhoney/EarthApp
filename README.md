@@ -1,7 +1,7 @@
-Earth
+EarthApp
 =====
 
-![Travis](http://img.shields.io/travis/Wildhoney/Earth.svg?style=flat)
+![Travis](http://img.shields.io/travis/Wildhoney/EarthApp.svg?style=flat)
 &nbsp;
 ![npm](http://img.shields.io/npm/v/earth-app.svg?style=flat)
 &nbsp;
