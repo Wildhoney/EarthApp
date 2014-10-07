@@ -1,4 +1,4 @@
-(function($angular, $app, $yaml, $window) {
+(function($angular, $app, $yaml) {
 
     "use strict";
 
@@ -70,8 +70,8 @@
                  */
                 $scope.addBigBen = function addBigBen(earth) {
 
-                    var options = $scope.options,
-                        cube = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10, new THREE.MeshNormalMaterial()));
+                    var cube = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10, new THREE.MeshNormalMaterial()));
+
                     cube.position.z = 110;
                     cube.rotation.x = 110;
                     cube.rotation.y = 110;
@@ -210,11 +210,13 @@
 
                     // Place in a rendering loop.
                     (function render() {
+
                         earth.rotation.y += 0.0005;
                         earth.rotation.x += 0.0001;
 
                         requestAnimationFrame(render);
                         renderer.render(scene, camera);
+
                     })();
 
                 });
@@ -242,4 +244,4 @@
 
     }]);
 
-})(window.angular, window.angular.module('earthApp'), window.jsyaml, window);
+})(window.angular, window.angular.module('earthApp'), window.jsyaml);
