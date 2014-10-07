@@ -4,6 +4,8 @@
 
     <!-- Dependencies! -->
     <script type="text/javascript" src="js/vendor/three.js/three.js"></script>
+    <script type="text/javascript" src="js/vendor/three.js/three.js"></script>
+    <script type="text/javascript" src="js/vendor/threex-colladaloader/ColladaLoader.js"></script>
     <script type="text/javascript" src="js/vendor/angular/angular.js"></script>
     <script type="text/javascript" src="js/vendor/js-yaml/dist/js-yaml.js"></script>
 
@@ -19,9 +21,8 @@
     <!--<title ng-show="current.name">Earth: Behold {{current.name}}!</title>-->
     <title>Earth</title>
 
-    <!-- Begin Custom Shaders -->
-
-    <script id="vertexShader" type="x-shader/x-vertex">
+    <!-- Begin Custom Moon Shaders -->
+    <script id="vertexShaderEarth" type="x-shader/x-vertex">
 
         varying vec3 vNormal;
 
@@ -32,18 +33,41 @@
 
     </script>
 
-    <script id="fragmentShader" type="x-shader/x-vertex">
+    <script id="fragmentShaderEarth" type="x-shader/x-vertex">
 
         varying vec3 vNormal;
 
         void main() {
-            float intensity = pow(0.7 - dot(vNormal, vec3( 0.0, 0.0, 0.8)), 4.0);
-            gl_FragColor    = vec4(1.0, 1.0, 1.2, 1) * intensity;
+            float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 0.8)), 6.0);
+            gl_FragColor    = vec4(1.0, 1.0, 1.5, 1) * intensity;
+        }
+
+    </script>
+    <!-- End Custom Moon Shaders -->
+
+    <!-- Begin Custom Moon Shaders -->
+    <script id="vertexShaderMoon" type="x-shader/x-vertex">
+
+        varying vec3 vNormal;
+
+        void main() {
+            vNormal     = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 4);
         }
 
     </script>
 
-    <!-- End Custom Shaders -->
+    <script id="fragmentShaderMoon" type="x-shader/x-vertex">
+
+        varying vec3 vNormal;
+
+        void main() {
+            float intensity = pow(0.32 - dot(vNormal, vec3(0.0, 0.0, 0.8)), 10.0);
+            gl_FragColor    = vec4(1.0, 1.0, 1, 1) * intensity;
+        }
+
+    </script>
+    <!-- End Custom Moon Shaders -->
 
 </head>
 <body class="colourful">

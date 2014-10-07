@@ -26,6 +26,7 @@
   "dependencies": {
     "three.js": "*",
     "angular": "~1.2.26",
-    "js-yaml": "~3.2.2"
+    "js-yaml": "~3.2.2",
+    "threex-colladaloader": "~0.0.1"
   }
 }

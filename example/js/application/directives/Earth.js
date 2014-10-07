@@ -70,20 +70,39 @@
                 };
 
                 /**
-                 * @method addBigBen
+                 * @method renderBigBen
                  * @param earth {THREE.Mesh}
                  * @return {THREE.Mesh}
                  */
-                $scope.addBigBen = function addBigBen(earth) {
+                $scope.renderBigBen = function renderBigBen(earth) {
 
-                    var cube = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10, new THREE.MeshNormalMaterial()));
+//                    var material = new THREE.MeshBasicMaterial( {color: 0x00ff00}),
+//                        cube     = new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5), material);
 
-                    cube.position.z = 110;
-                    cube.rotation.x = 110;
-                    cube.rotation.y = 110;
+                    var loader = new THREE.ColladaLoader();
+                    loader.load('models/BigBen.dae', function (result) {
 
-                    earth.add(cube);
-                    return cube;
+                        result.scene.position.z = 47.5;
+                        result.scene.position.x = 10;
+                        result.scene.position.y = 10;
+
+                        result.scene.rotation.x = -0.2;
+
+                        result.scene.scale.x = 0.05;
+                        result.scene.scale.y = 0.05;
+                        result.scene.scale.z = 0.05;
+
+                        earth.add(result.scene);
+                    });
+//
+//                    cube.position.z = 50;
+////                    cube.position.x = 10;
+////                    cube.position.y = 10;
+////                    cube.rotation.x = 110;
+////                    cube.rotation.y = 110;
+//
+//                    earth.add(cube);
+//                    return cube;
 
                 };
 
@@ -121,7 +140,7 @@
                         var material = new THREE.MeshPhongMaterial({
                             map: THREE.ImageUtils.loadTexture(options.map),
                             bumpMap: THREE.ImageUtils.loadTexture(options['bump_map']),
-                            bumpScale: 0.25
+                            bumpScale: 0.75
                         });
 
                         var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings),
@@ -129,6 +148,33 @@
 
                         // Offset the moon's position from the aforementioned center object.
                         mesh.position.z = 75;
+                        mesh.position.y = 10;
+
+                        centerObject.add(mesh);
+
+                    })();
+
+                    /**
+                     * @method renderHalo
+                     * @return {void}
+                     */
+                    (function renderHalo() {
+
+                        var options = $scope.options.moon;
+
+                        var material = new THREE.ShaderMaterial({
+                            uniforms: {},
+                            vertexShader: $scope.getShader('vertexShaderMoon'),
+                            fragmentShader: $scope.getShader('fragmentShaderMoon'),
+                            side: THREE.BackSide,
+                            blending: THREE.AdditiveBlending,
+                            transparent: true
+                        });
+
+                        var halo = new THREE.SphereGeometry((options.radius + 10), options.segments, options.rings),
+                            mesh = new THREE.Mesh(halo, material);
+
+                        mesh.position.z = 75.5;
                         mesh.position.y = 10;
 
                         centerObject.add(mesh);
@@ -158,7 +204,7 @@
                         var material = new THREE.MeshPhongMaterial({
                             map: THREE.ImageUtils.loadTexture(options.map),
                             bumpMap: THREE.ImageUtils.loadTexture(options['bump_map']),
-                            bumpScale: 0.25
+                            bumpScale: 0.35
                         });
 
                         var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
@@ -176,8 +222,8 @@
 
                         var material = new THREE.ShaderMaterial({
                             uniforms: {},
-                            vertexShader: $scope.getShader('vertexShader'),
-                            fragmentShader: $scope.getShader('fragmentShader'),
+                            vertexShader: $scope.getShader('vertexShaderEarth'),
+                            fragmentShader: $scope.getShader('fragmentShaderEarth'),
                             side: THREE.BackSide,
                             blending: THREE.AdditiveBlending,
                             transparent: true
@@ -262,16 +308,16 @@
                     scope.renderLights(scene);
 
                     // Add some landmarks to planet earth!
-//                    var bigBen = scope.addBigBen(earth);
+                    var bigBen = scope.renderBigBen(earth);
 
-                    earth.rotation.y = 100;
-                    earth.rotation.x = 100;
+//                    earth.rotation.y = 100;
+//                    earth.rotation.x = 100;
                     renderer.render(scene, camera);
 
                     // Place in a rendering loop.
                     (function render() {
 
-                        earth.rotation.y += 0.0005;
+                        earth.rotation.y += 0.0015;
                         earth.rotation.x += 0.0001;
                         moon.rotation.y  -= 0.0006;
                         moon.rotation.x  -= 0.0001;
