@@ -245,6 +245,46 @@
                 };
 
                 /**
+                 * @method renderStars
+                 * @param scene {THREE.Scene}
+                 * @return {void}
+                 */
+                $scope.renderStars = function renderStars(scene) {
+
+                    var options      = $scope.options.earth,
+                        material     = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 }),
+                        sphere       = new THREE.SphereGeometry(options.radius, 1, 1),
+                        centerObject = new THREE.Mesh(sphere, material);
+
+                    var particleCount = 250000,
+                        particles     = new THREE.Geometry(),
+                        pMaterial     = new THREE.ParticleBasicMaterial({
+                            size: 2,
+                            map: THREE.ImageUtils.loadTexture('images/stars.png'),
+                            blending: THREE.AdditiveBlending,
+                            transparent: true
+                    });
+
+                    for (var p = 0; p < particleCount; p++) {
+
+                        var pX = Math.random() * 1000 - 250,
+                            pY = Math.random() * 900 - 250,
+                            pZ = Math.random() * 600 - 850,
+                            particle = new THREE.Vector3(pX, pY, pZ);
+
+                        // add it to the geometry
+                        particles.vertices.push(particle);
+                    }
+
+                    var particleSystem = new THREE.ParticleSystem(particles, pMaterial);
+
+                    // Add the items to the scene.
+                    scene.add(centerObject);
+                    centerObject.add(particleSystem);
+
+                };
+
+                /**
                  * @method renderLights
                  * @param scene {THREE.Scene}
                  * @return {void}
@@ -310,12 +350,13 @@
                     var earth = scope.renderEarth(scene),
                         moon  = scope.renderMoon(scene);
                     scope.renderLights(scene);
+                    scope.renderStars(scene);
 
                     // Add some landmarks to planet earth!
-                    var bigBen = scope.renderBigBen(earth);
+                    scope.renderBigBen(earth);
 
-//                    earth.rotation.y = 100;
-//                    earth.rotation.x = 100;
+
+                    // Render the entire scene.
                     renderer.render(scene, camera);
 
                     // Place in a rendering loop.
