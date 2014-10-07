@@ -11,6 +11,7 @@ earth:
   rings: 128
   map: images/earth_cloudy_diffuse.jpg
   bump_map: images/earth_normal.jpg
+  bump_scale: 0.15
 
 moon:
   radius: 1

@@ -50,6 +50,12 @@
                 $scope.CONFIG_FILE = 'earth-app.yml';
 
                 /**
+                 * @property animationFrame
+                 * @type {Number}
+                 */
+                $scope.animationFrame = 0;
+
+                /**
                  * @property options
                  * @type {Object}
                  */
@@ -183,7 +189,7 @@
                         var material = new THREE.MeshPhongMaterial({
                             map: THREE.ImageUtils.loadTexture(options.map),
                             bumpMap: THREE.ImageUtils.loadTexture(options['bump_map']),
-                            bumpScale: 0.35
+                            bumpScale: options['bump_scale']
                         });
 
                         var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
@@ -338,7 +344,7 @@
                     renderer.render(scene, camera);
 
                     // Place in a rendering loop.
-                    (function render() {
+                    var render = (function render() {
 
                         earth.rotation.y += 0.0005;
                         earth.rotation.x += 0.0001;
@@ -347,29 +353,78 @@
                         clouds.rotation.x += 0.0001;
 
                         // Initialise the animation.
-                        requestAnimationFrame(render);
+                        scope.animationFrame = requestAnimationFrame(render);
                         renderer.render(scene, camera);
 
-                    })();
+                    });
 
-                });
-
-                /**
-                 * @property model
-                 * @type {Object}
-                 */
-                scope.model = {
+                    // Voila!
+                    render();
 
                     /**
-                     * @method setCountry
-                     * @param name {String}
-                     * @return {void}
+                     * @property model
+                     * @type {Object}
                      */
-                    setCountry: function setCountry(name) {
-                        console.log('Changing to', name, '...');
+                    scope.model = {
+
+                        /**
+                         * @method setCountry
+                         * @param name {String}
+                         * @return {void}
+                         */
+                        setCountry: function setCountry(name) {
+
+                            /**
+                             * @property _countryMap
+                             * @type {Object}
+                             * @private
+                             */
+                            var _countryMap = {
+                                'United Kingdom': { y: 4.7, x: 1 }
+                            };
+
+                            // Cancel the current animation.
+//                            cancelAnimationFrame(scope.animationFrame);
+
+                            var ySteps        = _countryMap[name].y / 100,
+                                xSteps        = _countryMap[name].x / 100,
+                                locationFrame = 0;
+
+                            /**
+                             * @method renderToLocation
+                             * @return {void}
+                             */
+                            (function renderToLocation() {
+
+                                earth.rotation.y += ySteps;
+                                earth.rotation.x += xSteps;
+
+                                var yMatches = earth.rotation.y.toFixed(2) === _countryMap[name].y.toFixed(2),
+                                    xMatches = earth.rotation.x.toFixed(2) === _countryMap[name].x.toFixed(2);
+
+                                // Determine when we've reached the desired point.
+                                if (yMatches && xMatches) {
+
+                                    earth.rotation.y = _countryMap[name].y;
+                                    earth.rotation.x = _countryMap[name].x;
+                                    cancelAnimationFrame(locationFrame);
+                                    render();
+                                    return;
+
+                                }
+
+                                // Otherwise slowly move to the desired location.
+//                                locationFrame = requestAnimationFrame(renderToLocation);
+                                earth.rotation.y = _countryMap[name].y;
+                                earth.rotation.x = _countryMap[name].x;
+
+                            })();
+
+                        }
+
                     }
 
-                }
+                });
 
             }
 

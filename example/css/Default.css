@@ -36,11 +36,13 @@ section.about {
 section.about h1 {
     font-size: 55px;
     font-weight: normal;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, .35);
 }
 
 section.about h2 {
-    font-size: 12px;
-    color: rgba(255, 255, 255, .5);
+    font-size: 10px;
+    color: rgba(255, 255, 255, .75);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, .25);
     font-weight: normal;
 }
 
@@ -49,6 +51,36 @@ section.about img.earth-icon {
     float: left;
     overflow: hidden;
     margin: 14px 15px 0 0;
+}
+
+ul.countries {
+    list-style-type: none;
+    display: inline-block;
+    position: absolute;
+    width: 200px;
+    top: 120px;
+    left: 25px;
+    text-align: left;
+}
+
+ul.countries li h3 {
+    color: white;
+    font-size: 9px;
+    font-family: Lato, Arial, Helvetica, sans-serif;
+    letter-spacing: 1px;
+    font-weight: normal;
+    opacity: .5;
+}
+
+ul.countries li {
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
+    padding: 8px 0;
+    color: white;
+    font-family: Times New Roman, Times, serif;
+    font-size: 11px;
+    font-style: italic;
+    cursor: pointer;
+    letter-spacing: 1px;
 }
 
 earth {
