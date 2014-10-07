@@ -11,3 +11,7 @@ EarthApp
 
 * **Heroku**: [http://earth-app.herokuapp.com/](http://earth-app.herokuapp.com/)
 * **Bower:** `bower install earth-app`
+
+![Screenshot](http://i.imgur.com/fOFFLFX.jpg)
+
+---
