@@ -4,9 +4,6 @@
         fs     = require('fs'),
         config = yaml.safeLoad(fs.readFileSync('.gulp.yml', 'utf8'));
 
-    var dependencies  = 'example/js/application/**/*.js',
-        distributions = { dev: 'earth.js', prod: 'earth.min.js' };
-
     var gulp   = require('gulp'),
         uglify = require('gulp-uglify'),
         copy   = require('gulp-copy'),

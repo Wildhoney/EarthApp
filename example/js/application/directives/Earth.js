@@ -40,6 +40,12 @@
             controller: ['$scope', function controller($scope) {
 
                 /**
+                 * @constant CONFIG_FILE
+                 * @type {String}
+                 */
+                $scope.CONFIG_FILE = 'earth-app.yml';
+
+                /**
                  * @property options
                  * @type {Object}
                  */
@@ -82,13 +88,65 @@
                 };
 
                 /**
+                 * @method renderMoon
+                 * @param scene {THREE.Scene}
+                 * @return {THREE.Mesh}
+                 */
+                $scope.renderMoon = function renderMoon(scene) {
+
+                    var centerObject = new THREE.Mesh(),
+                        options      = $scope.options.earth;
+
+                    /**
+                     * @method renderCenterObject
+                     * @return {void}
+                     */
+                    (function renderCenterObject() {
+
+                        var material = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 }),
+                            sphere   = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
+                        centerObject = new THREE.Mesh(sphere, material);
+
+                        centerObject.rotation.x = .2;
+                        centerObject.rotation.y = .2;
+
+                        scene.add(centerObject);
+
+                    })();
+
+                    (function renderMoon() {
+
+                        var options = $scope.options.moon;
+
+                        var material = new THREE.MeshPhongMaterial({
+                            map: THREE.ImageUtils.loadTexture(options.map),
+                            bumpMap: THREE.ImageUtils.loadTexture(options['bump_map']),
+                            bumpScale: 0.25
+                        });
+
+                        var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings),
+                            mesh   = new THREE.Mesh(sphere, material);
+
+                        // Offset the moon's position from the aforementioned center object.
+                        mesh.position.z = 75;
+                        mesh.position.y = 10;
+
+                        centerObject.add(mesh);
+
+                    })();
+
+                    return centerObject;
+
+                };
+
+                /**
                  * @method renderEarth
                  * @param scene {THREE.Scene}
                  * @return {THREE.Mesh}
                  */
                 $scope.renderEarth = function renderEarth(scene) {
 
-                    var mesh    = {},
+                    var mesh    = new THREE.Mesh(),
                         options = $scope.options.earth;
 
                     /**
@@ -98,8 +156,8 @@
                     (function renderEarth() {
 
                         var material = new THREE.MeshPhongMaterial({
-                            map: THREE.ImageUtils.loadTexture('images/earth_cloudy_diffuse.jpg'),
-                            bumpMap: THREE.ImageUtils.loadTexture('images/earth_normal.jpg'),
+                            map: THREE.ImageUtils.loadTexture(options.map),
+                            bumpMap: THREE.ImageUtils.loadTexture(options['bump_map']),
                             bumpScale: 0.25
                         });
 
@@ -125,8 +183,9 @@
                             transparent: true
                         });
 
-                        var halo = new THREE.SphereGeometry((options.radius + 10), options.segments, options.rings);
-                        var mesh = new THREE.Mesh(halo, material);
+                        var halo = new THREE.SphereGeometry((options.radius + 10), options.segments, options.rings),
+                            mesh = new THREE.Mesh(halo, material);
+
                         scene.add(mesh);
 
                     })();
@@ -178,7 +237,7 @@
             link: function link(scope, element) {
 
                 // Read the YAML configuration document.
-                $http.get('earth.yaml', { cache: $cacheFactory }).then(function then(response) {
+                $http.get(scope.CONFIG_FILE, { cache: $cacheFactory }).then(function then(response) {
 
                     // Parse the YAML configuration!
                     var config      = $yaml.load(response.data),
@@ -188,17 +247,18 @@
                         camera      = new THREE.PerspectiveCamera(options.angle, aspectRatio, options.near, options.far),
                         scene       = new THREE.Scene();
 
-                    // Define the options in the controller to prevent us from passing them around
-                    // as function dependencies.
-                    scope.setOptions(config);
-
                     scene.add(camera);
                     camera.position.z = config.camera['z_position'];
                     renderer.setSize($window.innerWidth, $window.innerHeight);
                     element.append(renderer.domElement);
 
+                    // Define the options in the controller to prevent us from passing them around
+                    // as function dependencies.
+                    scope.setOptions(config);
+
                     // Render our representation of planet earth to the scene.
-                    var earth = scope.renderEarth(scene);
+                    var earth = scope.renderEarth(scene),
+                        moon  = scope.renderMoon(scene);
                     scope.renderLights(scene);
 
                     // Add some landmarks to planet earth!
@@ -213,7 +273,10 @@
 
                         earth.rotation.y += 0.0005;
                         earth.rotation.x += 0.0001;
+                        moon.rotation.y  -= 0.0006;
+                        moon.rotation.x  -= 0.0001;
 
+                        // Initialise the animation.
                         requestAnimationFrame(render);
                         renderer.render(scene, camera);
 

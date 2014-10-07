@@ -9,6 +9,15 @@ earth:
   radius: 50
   segments: 128
   rings: 128
+  map: images/earth_cloudy_diffuse.jpg
+  bump_map: images/earth_normal.jpg
+
+moon:
+  radius: 2
+  segments: 128
+  rings: 128
+  map: images/moon.jpg
+  bump_map: images/moon.jpg
 
 camera:
   z_position: 150
