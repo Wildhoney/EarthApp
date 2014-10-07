@@ -92,6 +92,22 @@
              */
             controller: ['$scope', function controller($scope) {
 
+                // Hmm ColladaLoader is broken, so we'll mock this method to prevent it from throwing
+                // an error.
+                THREE.Geometry.prototype.computeCentroids = $angular.noop;
+
+                /**
+                 * @constant CONFIG_FILE
+                 * @type {String}
+                 */
+                $scope.CONFIG_FILE = 'earth-app.yml';
+
+                /**
+                 * @property animationFrame
+                 * @type {Number}
+                 */
+                $scope.animationFrame = 0;
+
                 /**
                  * @property options
                  * @type {Object}
@@ -117,20 +133,93 @@
                 };
 
                 /**
-                 * @method addBigBen
+                 * @method renderBigBen
                  * @param earth {THREE.Mesh}
                  * @return {THREE.Mesh}
                  */
-                $scope.addBigBen = function addBigBen(earth) {
+                $scope.renderBigBen = function renderBigBen(earth) {
 
-                    var cube = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10, new THREE.MeshNormalMaterial()));
+//                    var material = new THREE.MeshBasicMaterial( {color: 0x00ff00}),
+//                        cube     = new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5), material);
 
-                    cube.position.z = 110;
-                    cube.rotation.x = 110;
-                    cube.rotation.y = 110;
+                    var loader = new THREE.ColladaLoader();
+                    loader.load('models/BigBen.dae', function (result) {
 
-                    earth.add(cube);
-                    return cube;
+                        result.scene.position.z = 47.5;
+                        result.scene.position.x = 10;
+                        result.scene.position.y = 10;
+
+                        result.scene.rotation.x = -0.2;
+
+                        result.scene.scale.x = 0.05;
+                        result.scene.scale.y = 0.05;
+                        result.scene.scale.z = 0.05;
+
+                        earth.add(result.scene);
+                    });
+//
+//                    cube.position.z = 50;
+////                    cube.position.x = 10;
+////                    cube.position.y = 10;
+////                    cube.rotation.x = 110;
+////                    cube.rotation.y = 110;
+//
+//                    earth.add(cube);
+//                    return cube;
+
+                };
+
+                /**
+                 * @method renderClouds
+                 * @param scene {THREE.Scene}
+                 * @return {THREE.Mesh}
+                 */
+                $scope.renderClouds = function renderClouds(scene) {
+
+                    var centerObject = new THREE.Mesh(),
+                        options      = $scope.options.earth;
+
+                    /**
+                     * @method renderCenterObject
+                     * @return {void}
+                     */
+                    (function renderCenterObject() {
+
+                        var material = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 }),
+                            sphere   = new THREE.SphereGeometry(options.radius, 1, 1);
+                        centerObject = new THREE.Mesh(sphere, material);
+
+                        centerObject.rotation.x = .2;
+                        centerObject.rotation.y = .2;
+
+                        scene.add(centerObject);
+
+                    })();
+
+                    /**
+                     * @method renderClouds
+                     * @return {void}
+                     */
+                    (function renderClouds() {
+
+                        var options = $scope.options;
+
+                        var material = new THREE.MeshPhongMaterial({
+                            map: THREE.ImageUtils.loadTexture(options.clouds.map),
+                            bumpMap: THREE.ImageUtils.loadTexture(options.clouds['bump_map']),
+                            bumpScale: 0.35,
+                            transparent: true,
+                            opacity:.3
+                        });
+
+                        var sphere = new THREE.SphereGeometry(options.earth.radius + 0.05, options.earth.segments, options.earth.rings),
+                            mesh   = new THREE.Mesh(sphere, material);
+
+                        centerObject.add(mesh);
+
+                    })();
+
+                    return centerObject;
 
                 };
 
@@ -141,7 +230,7 @@
                  */
                 $scope.renderEarth = function renderEarth(scene) {
 
-                    var mesh    = {},
+                    var mesh    = new THREE.Mesh(),
                         options = $scope.options.earth;
 
                     /**
@@ -151,13 +240,16 @@
                     (function renderEarth() {
 
                         var material = new THREE.MeshPhongMaterial({
-                            map: THREE.ImageUtils.loadTexture('images/earth_cloudy_diffuse.jpg'),
-                            bumpMap: THREE.ImageUtils.loadTexture('images/earth_normal.jpg'),
-                            bumpScale: 0.25
+                            map: THREE.ImageUtils.loadTexture(options.map),
+                            bumpMap: THREE.ImageUtils.loadTexture(options['bump_map']),
+                            bumpScale: options['bump_scale']
                         });
 
                         var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
                         mesh       = new THREE.Mesh(sphere, material);
+
+//                        mesh.rotation.y = -1.7;
+//                        mesh.rotation.x = 1;
 
                         scene.add(mesh);
 
@@ -171,20 +263,62 @@
 
                         var material = new THREE.ShaderMaterial({
                             uniforms: {},
-                            vertexShader: $scope.getShader('vertexShader'),
-                            fragmentShader: $scope.getShader('fragmentShader'),
+                            vertexShader: $scope.getShader('vertexShaderEarth'),
+                            fragmentShader: $scope.getShader('fragmentShaderEarth'),
                             side: THREE.BackSide,
                             blending: THREE.AdditiveBlending,
                             transparent: true
                         });
 
-                        var halo = new THREE.SphereGeometry((options.radius + 10), options.segments, options.rings);
-                        var mesh = new THREE.Mesh(halo, material);
+                        var halo = new THREE.SphereGeometry((options.radius + 10), options.segments, options.rings),
+                            mesh = new THREE.Mesh(halo, material);
+
                         scene.add(mesh);
 
                     })();
 
                     return mesh;
+
+                };
+
+                /**
+                 * @method renderStars
+                 * @param scene {THREE.Scene}
+                 * @return {void}
+                 */
+                $scope.renderStars = function renderStars(scene) {
+
+                    var options      = $scope.options.earth,
+                        material     = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 }),
+                        sphere       = new THREE.SphereGeometry(options.radius, 1, 1),
+                        centerObject = new THREE.Mesh(sphere, material);
+
+                    var particleCount    = $scope.options.stars.count,
+                        particles        = new THREE.Geometry(),
+                        particleMaterial = new THREE.ParticleBasicMaterial({
+                            size: 2,
+                            map: THREE.ImageUtils.loadTexture('images/stars.png'),
+                            blending: THREE.AdditiveBlending,
+                            transparent: true,
+                            opacity: 0.75
+                    });
+
+                    for (var p = 0; p < particleCount; p++) {
+
+                        var pX = Math.random() * ($window.innerWidth * 2) - 250,
+                            pY = Math.random() * ($window.innerWidth * 2) - 250,
+                            pZ = Math.random() * 1000 - 1000,
+                            particle = new THREE.Vector3(pX, pY, pZ);
+
+                        // add it to the geometry
+                        particles.vertices.push(particle);
+                    }
+
+                    var particleSystem = new THREE.ParticleSystem(particles, particleMaterial);
+
+                    // Add the items to the scene.
+                    scene.add(centerObject);
+                    centerObject.add(particleSystem);
 
                 };
 
@@ -208,7 +342,7 @@
                         var options = $scope.options.light,
                             light   = new THREE.PointLight(0xffffff);
 
-                        light.intensity = 0.75;
+                        light.intensity  = 1;
                         light.position.x = -100;
                         light.position.y = 50;
                         light.position.z = options['z_position'];
@@ -231,7 +365,7 @@
             link: function link(scope, element) {
 
                 // Read the YAML configuration document.
-                $http.get('earth.yaml', { cache: $cacheFactory }).then(function then(response) {
+                $http.get(scope.CONFIG_FILE, { cache: $cacheFactory }).then(function then(response) {
 
                     // Parse the YAML configuration!
                     var config      = $yaml.load(response.data),
@@ -241,55 +375,109 @@
                         camera      = new THREE.PerspectiveCamera(options.angle, aspectRatio, options.near, options.far),
                         scene       = new THREE.Scene();
 
-                    // Define the options in the controller to prevent us from passing them around
-                    // as function dependencies.
-                    scope.setOptions(config);
-
                     scene.add(camera);
                     camera.position.z = config.camera['z_position'];
                     renderer.setSize($window.innerWidth, $window.innerHeight);
                     element.append(renderer.domElement);
 
+                    // Define the options in the controller to prevent us from passing them around
+                    // as function dependencies.
+                    scope.setOptions(config);
+
                     // Render our representation of planet earth to the scene.
-                    var earth = scope.renderEarth(scene);
+                    var earth  = scope.renderEarth(scene),
+                        clouds = scope.renderClouds(scene);
                     scope.renderLights(scene);
+                    scope.renderStars(scene);
 
                     // Add some landmarks to planet earth!
-//                    var bigBen = scope.addBigBen(earth);
+//                    scope.renderBigBen(earth);
 
-                    earth.rotation.y = 100;
-                    earth.rotation.x = 100;
+                    // Render the entire scene.
                     renderer.render(scene, camera);
 
                     // Place in a rendering loop.
-                    (function render() {
+                    var render = (function render() {
 
                         earth.rotation.y += 0.0005;
                         earth.rotation.x += 0.0001;
 
-                        requestAnimationFrame(render);
+                        clouds.rotation.y += 0.001;
+                        clouds.rotation.x += 0.0001;
+
+                        // Initialise the animation.
+                        scope.animationFrame = requestAnimationFrame(render);
                         renderer.render(scene, camera);
 
-                    })();
+                    });
 
-                });
-
-                /**
-                 * @property model
-                 * @type {Object}
-                 */
-                scope.model = {
+                    // Voila!
+                    render();
 
                     /**
-                     * @method setCountry
-                     * @param name {String}
-                     * @return {void}
+                     * @property model
+                     * @type {Object}
                      */
-                    setCountry: function setCountry(name) {
-                        console.log('Changing to', name, '...');
+                    scope.model = {
+
+                        /**
+                         * @method setCountry
+                         * @param name {String}
+                         * @return {void}
+                         */
+                        setCountry: function setCountry(name) {
+
+                            /**
+                             * @property _countryMap
+                             * @type {Object}
+                             * @private
+                             */
+                            var _countryMap = {
+                                'United Kingdom': { y: 4.7, x: 1 }
+                            };
+
+                            // Cancel the current animation.
+//                            cancelAnimationFrame(scope.animationFrame);
+
+                            var ySteps        = _countryMap[name].y / 100,
+                                xSteps        = _countryMap[name].x / 100,
+                                locationFrame = 0;
+
+                            /**
+                             * @method renderToLocation
+                             * @return {void}
+                             */
+                            (function renderToLocation() {
+
+                                earth.rotation.y += ySteps;
+                                earth.rotation.x += xSteps;
+
+                                var yMatches = earth.rotation.y.toFixed(2) === _countryMap[name].y.toFixed(2),
+                                    xMatches = earth.rotation.x.toFixed(2) === _countryMap[name].x.toFixed(2);
+
+                                // Determine when we've reached the desired point.
+                                if (yMatches && xMatches) {
+
+                                    earth.rotation.y = _countryMap[name].y;
+                                    earth.rotation.x = _countryMap[name].x;
+                                    cancelAnimationFrame(locationFrame);
+                                    render();
+                                    return;
+
+                                }
+
+                                // Otherwise slowly move to the desired location.
+//                                locationFrame = requestAnimationFrame(renderToLocation);
+                                earth.rotation.y = _countryMap[name].y;
+                                earth.rotation.x = _countryMap[name].x;
+
+                            })();
+
+                        }
+
                     }
 
-                }
+                });
 
             }
 
