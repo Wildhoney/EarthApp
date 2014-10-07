@@ -39,6 +39,10 @@
              */
             controller: ['$scope', function controller($scope) {
 
+                // Hmm ColladaLoader is broken, so we'll mock this method to prevent it from throwing
+                // an error.
+                THREE.Geometry.prototype.computeCentroids = $angular.noop;
+
                 /**
                  * @constant CONFIG_FILE
                  * @type {String}
