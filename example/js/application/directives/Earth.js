@@ -231,7 +231,7 @@
                 /**
                  * @method renderStars
                  * @param scene {THREE.Scene}
-                 * @return {void}
+                 * @return {THREE.Mesh}
                  */
                 $scope.renderStars = function renderStars(scene) {
 
@@ -266,6 +266,7 @@
                     // Add the items to the scene.
                     scene.add(centerObject);
                     centerObject.add(particleSystem);
+                    return centerObject;
 
                 };
 
@@ -278,7 +279,7 @@
 
                     // Render the ambient light so that even the darkest areas have a little bit
                     // of light cast on them.
-                    scene.add(new THREE.AmbientLight(0x222222));
+                    scene.add(new THREE.AmbientLight(0x555555));
 
                     /**
                      * @method renderPointLight
@@ -287,7 +288,7 @@
                     (function renderPointLight() {
 
                         var options = $scope.options.light,
-                            light   = new THREE.PointLight(0xffffff);
+                            light   = new THREE.PointLight(0xFFFFFF);
 
                         light.intensity  = 1;
                         light.position.x = -100;
@@ -333,9 +334,9 @@
 
                     // Render our representation of planet earth to the scene.
                     var earth  = scope.renderEarth(scene),
-                        clouds = scope.renderClouds(scene);
+                        clouds = scope.renderClouds(scene),
+                        stars  = scope.renderStars(scene);
                     scope.renderLights(scene);
-                    scope.renderStars(scene);
 
                     // Add some landmarks to planet earth!
 //                    scope.renderBigBen(earth);
@@ -351,6 +352,8 @@
 
                         clouds.rotation.y += 0.001;
                         clouds.rotation.x += 0.0001;
+
+                        stars.rotation.z += 0.0005;
 
                         // Initialise the animation.
                         scope.animationFrame = requestAnimationFrame(render);
