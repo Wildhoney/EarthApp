@@ -7,6 +7,7 @@
         uglify = require('gulp-uglify'),
         copy   = require('gulp-copy'),
         concat = require('gulp-concat'),
+        notify = require('gulp-notify'),
         jshint = require('gulp-jshint');
 
     gulp.task('build', function() {
@@ -18,6 +19,7 @@
             .pipe(gulp.dest('./dist/'))
             .pipe(uglify())
             .pipe(gulp.dest('dist'))
+            .pipe(notify('Build Complete.'));
 
     });
 
@@ -25,7 +27,8 @@
 
         return gulp.src(dependencies)
             .pipe(jshint('.jshintrc'))
-            .pipe(jshint.reporter('default'));
+            .pipe(jshint.reporter('default'))
+            .pipe(notify('Tests Complete.'));
     });
 
     gulp.task('test', ['hint']);
