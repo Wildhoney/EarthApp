@@ -1,0 +1,5 @@
+input: example/js/application/**/*.js
+output:
+  directory: ./dist/
+  development: earth.js
+  production: earth.min.js
