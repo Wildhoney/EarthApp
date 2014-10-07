@@ -29,6 +29,7 @@
             .pipe(jshint('.jshintrc'))
             .pipe(jshint.reporter('default'))
             .pipe(notify('Tests Complete.'));
+        
     });
 
     gulp.task('test', ['hint']);
