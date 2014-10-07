@@ -38,32 +38,8 @@
         varying vec3 vNormal;
 
         void main() {
-            float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 0.8)), 6.0);
+            float intensity = pow(0.7 - dot(vNormal, vec3(-0.05, 0.025, 0.8)), 6.0);
             gl_FragColor    = vec4(1.0, 1.0, 1.5, 1) * intensity;
-        }
-
-    </script>
-    <!-- End Custom Moon Shaders -->
-
-    <!-- Begin Custom Moon Shaders -->
-    <script id="vertexShaderMoon" type="x-shader/x-vertex">
-
-        varying vec3 vNormal;
-
-        void main() {
-            vNormal     = normalize(normalMatrix * normal);
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 4);
-        }
-
-    </script>
-
-    <script id="fragmentShaderMoon" type="x-shader/x-vertex">
-
-        varying vec3 vNormal;
-
-        void main() {
-            float intensity = pow(0.32 - dot(vNormal, vec3(0.0, 0.0, 0.8)), 10.0);
-            gl_FragColor    = vec4(1.0, 1.0, 1, 1) * intensity;
         }
 
     </script>

@@ -111,11 +111,11 @@
                 };
 
                 /**
-                 * @method renderMoon
+                 * @method renderClouds
                  * @param scene {THREE.Scene}
                  * @return {THREE.Mesh}
                  */
-                $scope.renderMoon = function renderMoon(scene) {
+                $scope.renderClouds = function renderClouds(scene) {
 
                     var centerObject = new THREE.Mesh(),
                         options      = $scope.options.earth;
@@ -127,7 +127,7 @@
                     (function renderCenterObject() {
 
                         var material = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 }),
-                            sphere   = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
+                            sphere   = new THREE.SphereGeometry(options.radius, 1, 1);
                         centerObject = new THREE.Mesh(sphere, material);
 
                         centerObject.rotation.x = .2;
@@ -137,49 +137,24 @@
 
                     })();
 
-                    (function renderMoon() {
-
-                        var options = $scope.options.moon;
-
-                        var material = new THREE.MeshPhongMaterial({
-                            map: THREE.ImageUtils.loadTexture(options.map),
-                            bumpMap: THREE.ImageUtils.loadTexture(options['bump_map']),
-                            bumpScale: 0.75
-                        });
-
-                        var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings),
-                            mesh   = new THREE.Mesh(sphere, material);
-
-                        // Offset the moon's position from the aforementioned center object.
-                        mesh.position.z = 75;
-                        mesh.position.y = 10;
-
-                        centerObject.add(mesh);
-
-                    })();
-
                     /**
-                     * @method renderHalo
+                     * @method renderClouds
                      * @return {void}
                      */
-                    (function renderHalo() {
+                    (function renderClouds() {
 
-                        var options = $scope.options.moon;
+                        var options = $scope.options;
 
-                        var material = new THREE.ShaderMaterial({
-                            uniforms: {},
-                            vertexShader: $scope.getShader('vertexShaderMoon'),
-                            fragmentShader: $scope.getShader('fragmentShaderMoon'),
-                            side: THREE.BackSide,
-                            blending: THREE.AdditiveBlending,
-                            transparent: true
+                        var material = new THREE.MeshPhongMaterial({
+                            map: THREE.ImageUtils.loadTexture(options.clouds.map),
+                            bumpMap: THREE.ImageUtils.loadTexture(options.clouds['bump_map']),
+                            bumpScale: 0.35,
+                            transparent: true,
+                            opacity:.3
                         });
 
-                        var halo = new THREE.SphereGeometry((options.radius + 10), options.segments, options.rings),
-                            mesh = new THREE.Mesh(halo, material);
-
-                        mesh.position.z = 75.5;
-                        mesh.position.y = 10;
+                        var sphere = new THREE.SphereGeometry(options.earth.radius + 0.05, options.earth.segments, options.earth.rings),
+                            mesh   = new THREE.Mesh(sphere, material);
 
                         centerObject.add(mesh);
 
@@ -213,6 +188,9 @@
 
                         var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
                         mesh       = new THREE.Mesh(sphere, material);
+
+//                        mesh.rotation.y = -1.7;
+//                        mesh.rotation.x = 1;
 
                         scene.add(mesh);
 
@@ -256,27 +234,28 @@
                         sphere       = new THREE.SphereGeometry(options.radius, 1, 1),
                         centerObject = new THREE.Mesh(sphere, material);
 
-                    var particleCount = 250000,
-                        particles     = new THREE.Geometry(),
-                        pMaterial     = new THREE.ParticleBasicMaterial({
+                    var particleCount    = $scope.options.stars.count,
+                        particles        = new THREE.Geometry(),
+                        particleMaterial = new THREE.ParticleBasicMaterial({
                             size: 2,
                             map: THREE.ImageUtils.loadTexture('images/stars.png'),
                             blending: THREE.AdditiveBlending,
-                            transparent: true
+                            transparent: true,
+                            opacity: 0.75
                     });
 
                     for (var p = 0; p < particleCount; p++) {
 
-                        var pX = Math.random() * 1000 - 250,
-                            pY = Math.random() * 900 - 250,
-                            pZ = Math.random() * 600 - 850,
+                        var pX = Math.random() * ($window.innerWidth * 2) - 250,
+                            pY = Math.random() * ($window.innerWidth * 2) - 250,
+                            pZ = Math.random() * 1000 - 1000,
                             particle = new THREE.Vector3(pX, pY, pZ);
 
                         // add it to the geometry
                         particles.vertices.push(particle);
                     }
 
-                    var particleSystem = new THREE.ParticleSystem(particles, pMaterial);
+                    var particleSystem = new THREE.ParticleSystem(particles, particleMaterial);
 
                     // Add the items to the scene.
                     scene.add(centerObject);
@@ -304,7 +283,7 @@
                         var options = $scope.options.light,
                             light   = new THREE.PointLight(0xffffff);
 
-                        light.intensity = 0.75;
+                        light.intensity  = 1;
                         light.position.x = -100;
                         light.position.y = 50;
                         light.position.z = options['z_position'];
@@ -347,14 +326,13 @@
                     scope.setOptions(config);
 
                     // Render our representation of planet earth to the scene.
-                    var earth = scope.renderEarth(scene),
-                        moon  = scope.renderMoon(scene);
+                    var earth  = scope.renderEarth(scene),
+                        clouds = scope.renderClouds(scene);
                     scope.renderLights(scene);
                     scope.renderStars(scene);
 
                     // Add some landmarks to planet earth!
-                    scope.renderBigBen(earth);
-
+//                    scope.renderBigBen(earth);
 
                     // Render the entire scene.
                     renderer.render(scene, camera);
@@ -362,10 +340,11 @@
                     // Place in a rendering loop.
                     (function render() {
 
-                        earth.rotation.y += 0.0015;
+                        earth.rotation.y += 0.0005;
                         earth.rotation.x += 0.0001;
-                        moon.rotation.y  -= 0.0006;
-                        moon.rotation.x  -= 0.0001;
+
+                        clouds.rotation.y += 0.001;
+                        clouds.rotation.x += 0.0001;
 
                         // Initialise the animation.
                         requestAnimationFrame(render);
