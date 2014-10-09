@@ -6,51 +6,6 @@
     $angular.module('earthApp', []);
 
 })(window.angular);
-(function($angular) {
-
-    "use strict";
-
-    /**
-     * @module Earth
-     * @author Adam Timberlake
-     * @link https://github.com/Wildhoney/Earth
-     * @controller ApplicationController
-     */
-    $angular.module('earthApp').controller('ApplicationController', ['$scope', function ApplicationController($scope) {
-
-        /**
-         * @property current
-         * @type {Object|null}
-         */
-        $scope.current = { name: null };
-
-        /**
-         * @property interface
-         * @type {Object}
-         */
-        $scope.interface = {
-
-            /**
-             * @property setCountry
-             * @type {Function}
-             */
-            setCountry: $angular.noop
-
-        };
-
-        /**
-         * @method setCountry
-         * @param name {String}
-         * @return {void}
-         */
-        $scope.setCountry = function setCountry(name) {
-            $scope.current.name = name;
-            $scope.interface.setCountry(name);
-        }
-
-    }]);
-
-})(window.angular);
 (function($angular, $app, $yaml) {
 
     "use strict";
@@ -103,10 +58,22 @@
                 $scope.CONFIG_FILE = 'earth-app.yml';
 
                 /**
+                 * @property objects
+                 * @type {Array}
+                 */
+                $scope.objects = [];
+
+                /**
                  * @property animationFrame
                  * @type {Number}
                  */
                 $scope.animationFrame = 0;
+
+                /**
+                 * @property isMouseDown
+                 * @type {Boolean}
+                 */
+                $scope.isMouseDown = false;
 
                 /**
                  * @property options
@@ -189,8 +156,8 @@
                             sphere   = new THREE.SphereGeometry(options.radius, 1, 1);
                         centerObject = new THREE.Mesh(sphere, material);
 
-                        centerObject.rotation.x = .2;
-                        centerObject.rotation.y = .2;
+                        centerObject.rotation.x = 0.2;
+                        centerObject.rotation.y = 0.2;
 
                         scene.add(centerObject);
 
@@ -248,9 +215,7 @@
                         var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
                         mesh       = new THREE.Mesh(sphere, material);
 
-//                        mesh.rotation.y = -1.7;
-//                        mesh.rotation.x = 1;
-
+                        $scope.objects.push(mesh);
                         scene.add(mesh);
 
                     })();
@@ -365,6 +330,8 @@
              */
             link: function link(scope, element) {
 
+                var projector = new THREE.Projector();
+
                 // Read the YAML configuration document.
                 $http.get(scope.CONFIG_FILE, { cache: $cacheFactory }).then(function then(response) {
 
@@ -399,7 +366,7 @@
                     renderer.render(scene, camera);
 
                     // Place in a rendering loop.
-                    var render = (function render() {
+                    var render = function render() {
 
                         earth.rotation.y += 0.0005;
                         earth.rotation.x += 0.0001;
@@ -413,10 +380,84 @@
                         scope.animationFrame = requestAnimationFrame(render);
                         renderer.render(scene, camera);
 
-                    });
+                    };
 
                     // Voila!
                     render();
+
+                    /**
+                     * @method attachEvents
+                     * @param $document {$window.document}
+                     * @return {void}
+                     */
+                    (function attachEvents($document) {
+
+                        // Re-render the scene when the user resizes the window.
+                        $window.addEventListener('resize', function onResize() {
+
+                            camera.aspect = $window.innerWidth / $window.innerHeight;
+                            camera.updateProjectionMatrix();
+                            renderer.setSize($window.innerWidth, $window.innerHeight);
+
+                        }, false);
+
+                        var startPosition;
+
+                        $document.addEventListener('mousedown', function onMouseDown(event) {
+
+                            event.preventDefault();
+
+                            var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
+                            projector.unprojectVector(vector, camera);
+
+                            var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize()),
+                                intersects = raycaster.intersectObjects(scope.objects);
+
+                            // We're only interested in events taking place on the earth object.
+                            if (intersects.length > 0 && intersects[0].object === earth) {
+                                startPosition = { x: event.clientX, y: event.clientY };
+                                scope.isMouseDown = true;
+                            }
+
+                        });
+
+                        $document.addEventListener('mouseup', function onMouseUp() {
+                            scope.isMouseDown = false;
+                            startPosition = null;
+                        });
+
+                        $document.addEventListener('mousemove', function(event) {
+
+                            if (!startPosition) {
+                                return;
+                            }
+
+                            var xPosition = startPosition.x - event.clientX,
+                                yPosition = startPosition.y - event.clientY;
+
+                            /**
+                             * @method getRotation
+                             * @param model {Object}
+                             * @return {Object}
+                             */
+                            var getRotation = function getRotation(model) {
+
+                                return {
+                                    x: model.rotation.x + -(yPosition / ($window.innerWidth * 3)),
+                                    y: model.rotation.y + -(xPosition / ($window.innerHeight * 3))
+                                };
+
+                            };
+
+                            // Rotate the planet!
+                            earth.rotation.y  = getRotation(earth).y;
+                            earth.rotation.x  = getRotation(earth).x;
+                            clouds.rotation.y = getRotation(clouds).y;
+                            clouds.rotation.x = getRotation(clouds).x;
+
+                        });
+
+                    })($window.document);
 
                     /**
                      * @property model
@@ -490,3 +531,48 @@
     }]);
 
 })(window.angular, window.angular.module('earthApp'), window.jsyaml);
+(function($angular) {
+
+    "use strict";
+
+    /**
+     * @module Earth
+     * @author Adam Timberlake
+     * @link https://github.com/Wildhoney/Earth
+     * @controller ApplicationController
+     */
+    $angular.module('earthApp').controller('ApplicationController', ['$scope', function ApplicationController($scope) {
+
+        /**
+         * @property current
+         * @type {Object|null}
+         */
+        $scope.current = { name: null };
+
+        /**
+         * @property interface
+         * @type {Object}
+         */
+        $scope.interface = {
+
+            /**
+             * @property setCountry
+             * @type {Function}
+             */
+            setCountry: $angular.noop
+
+        };
+
+        /**
+         * @method setCountry
+         * @param name {String}
+         * @return {void}
+         */
+        $scope.setCountry = function setCountry(name) {
+            $scope.current.name = name;
+            $scope.interface.setCountry(name);
+        }
+
+    }]);
+
+})(window.angular);

@@ -148,8 +148,8 @@
                             sphere   = new THREE.SphereGeometry(options.radius, 1, 1);
                         centerObject = new THREE.Mesh(sphere, material);
 
-                        centerObject.rotation.x = .2;
-                        centerObject.rotation.y = .2;
+                        centerObject.rotation.x = 0.2;
+                        centerObject.rotation.y = 0.2;
 
                         scene.add(centerObject);
 
@@ -322,16 +322,7 @@
              */
             link: function link(scope, element) {
 
-                var projector        = new THREE.Projector(),
-                    particleMaterial = new THREE.SpriteCanvasMaterial({
-                    color: 0x000000,
-                    program: function program(context) {
-                        context.beginPath();
-                        context.arc(0, 0, 0.5, 0, Math.PI * 2, true);
-                        context.fill();
-                    }
-
-                });
+                var projector = new THREE.Projector();
 
                 // Read the YAML configuration document.
                 $http.get(scope.CONFIG_FILE, { cache: $cacheFactory }).then(function then(response) {
@@ -367,7 +358,7 @@
                     renderer.render(scene, camera);
 
                     // Place in a rendering loop.
-                    var render = (function render() {
+                    var render = function render() {
 
                         earth.rotation.y += 0.0005;
                         earth.rotation.x += 0.0001;
@@ -381,79 +372,84 @@
                         scope.animationFrame = requestAnimationFrame(render);
                         renderer.render(scene, camera);
 
-                    });
+                    };
 
                     // Voila!
                     render();
 
-                    // Re-render the scene when the user resizes the window.
-                    $window.addEventListener('resize', function onResize() {
+                    /**
+                     * @method attachEvents
+                     * @param $document {$window.document}
+                     * @return {void}
+                     */
+                    (function attachEvents($document) {
 
-                        camera.aspect = $window.innerWidth / $window.innerHeight;
-                        camera.updateProjectionMatrix();
-                        renderer.setSize($window.innerWidth, $window.innerHeight);
+                        // Re-render the scene when the user resizes the window.
+                        $window.addEventListener('resize', function onResize() {
 
-                    }, false);
+                            camera.aspect = $window.innerWidth / $window.innerHeight;
+                            camera.updateProjectionMatrix();
+                            renderer.setSize($window.innerWidth, $window.innerHeight);
 
-                    var startPosition;
+                        }, false);
 
-                    document.addEventListener('mousedown', function onMouseDown(event) {
+                        var startPosition;
 
-                        event.preventDefault();
+                        $document.addEventListener('mousedown', function onMouseDown(event) {
 
-                        var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
-                        projector.unprojectVector(vector, camera);
+                            event.preventDefault();
 
-                        var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize()),
-                            intersects = raycaster.intersectObjects(scope.objects);
+                            var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
+                            projector.unprojectVector(vector, camera);
 
-                        // We're only interested in events taking place on the earth object.
-                        if (intersects.length > 0 && intersects[0].object === earth) {
+                            var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize()),
+                                intersects = raycaster.intersectObjects(scope.objects);
 
-                            startPosition = { x: event.clientX, y: event.clientY };
+                            // We're only interested in events taking place on the earth object.
+                            if (intersects.length > 0 && intersects[0].object === earth) {
+                                startPosition = { x: event.clientX, y: event.clientY };
+                                scope.isMouseDown = true;
+                            }
 
-//                            intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
-                            scope.isMouseDown = true;
+                        });
 
-                        }
+                        $document.addEventListener('mouseup', function onMouseUp() {
+                            scope.isMouseDown = false;
+                            startPosition = null;
+                        });
 
-                    });
+                        $document.addEventListener('mousemove', function(event) {
 
-                    document.addEventListener('mouseup', function onMouseUp(event) {
-                        scope.isMouseDown = false;
-                        startPosition = null;
-                    });
+                            if (!startPosition) {
+                                return;
+                            }
 
-                    document.addEventListener('mousemove', function(event) {
+                            var xPosition = startPosition.x - event.clientX,
+                                yPosition = startPosition.y - event.clientY;
 
-                        if (!startPosition) {
-                            return;
-                        }
+                            /**
+                             * @method getRotation
+                             * @param model {Object}
+                             * @return {Object}
+                             */
+                            var getRotation = function getRotation(model) {
 
-                        var xPosition = startPosition.x - event.clientX,
-                            yPosition = startPosition.y - event.clientY;
+                                return {
+                                    x: model.rotation.x + -(yPosition / ($window.innerWidth * 3)),
+                                    y: model.rotation.y + -(xPosition / ($window.innerHeight * 3))
+                                };
 
-                        /**
-                         * @method getRotation
-                         * @param model {Object}
-                         * @return {Object}
-                         */
-                        var getRotation = function getRotation(model) {
-
-                            return {
-                                x: model.rotation.x + -(yPosition / ($window.innerWidth * 3)),
-                                y: model.rotation.y + -(xPosition / ($window.innerHeight * 3))
                             };
 
-                        };
+                            // Rotate the planet!
+                            earth.rotation.y  = getRotation(earth).y;
+                            earth.rotation.x  = getRotation(earth).x;
+                            clouds.rotation.y = getRotation(clouds).y;
+                            clouds.rotation.x = getRotation(clouds).x;
 
-                        // Rotate the planet!
-                        earth.rotation.y  = getRotation(earth).y;
-                        earth.rotation.x  = getRotation(earth).x;
-                        clouds.rotation.y = getRotation(clouds).y;
-                        clouds.rotation.x = getRotation(clouds).x;
+                        });
 
-                    });
+                    })($window.document);
 
                     /**
                      * @property model
