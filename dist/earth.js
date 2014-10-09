@@ -133,27 +133,27 @@
                 };
 
                 /**
-                 * @method renderBigBen
+                 * @method renderTowerBridge
                  * @param earth {THREE.Mesh}
                  * @return {THREE.Mesh}
                  */
-                $scope.renderBigBen = function renderBigBen(earth) {
+                $scope.renderTowerBridge = function renderTowerBridge(earth) {
 
 //                    var material = new THREE.MeshBasicMaterial( {color: 0x00ff00}),
 //                        cube     = new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5), material);
 
                     var loader = new THREE.ColladaLoader();
-                    loader.load('models/BigBen.dae', function (result) {
+                    loader.load('models/TowerBridge.dae', function (result) {
 
-                        result.scene.position.z = 47.5;
+                        result.scene.position.z = 47;
                         result.scene.position.x = 10;
                         result.scene.position.y = 10;
 
                         result.scene.rotation.x = -0.2;
 
-                        result.scene.scale.x = 0.05;
-                        result.scene.scale.y = 0.05;
-                        result.scene.scale.z = 0.05;
+                        result.scene.scale.x = 0.025;
+                        result.scene.scale.y = 0.025;
+                        result.scene.scale.z = 0.025;
 
                         earth.add(result.scene);
                     });
@@ -209,7 +209,7 @@
                             bumpMap: THREE.ImageUtils.loadTexture(options.clouds['bump_map']),
                             bumpScale: 0.35,
                             transparent: true,
-                            opacity:.3
+                            opacity: 0.3
                         });
 
                         var sphere = new THREE.SphereGeometry(options.earth.radius + 0.05, options.earth.segments, options.earth.rings),
@@ -393,6 +393,7 @@
 
                     // Add some landmarks to planet earth!
 //                    scope.renderBigBen(earth);
+//                    scope.renderTowerBridge(earth);
 
                     // Render the entire scene.
                     renderer.render(scene, camera);

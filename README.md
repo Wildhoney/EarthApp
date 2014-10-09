@@ -10,6 +10,8 @@ EarthApp
 * **Heroku**: [http://earth-app.herokuapp.com/](http://earth-app.herokuapp.com/)
 * **Bower:** `bower install earth-app`
 
-![Screenshot](http://i.imgur.com/fOFFLFX.jpg)
-
 `EarthApp` is an experimental module using [THREE.js](http://threejs.org/) and [Angular](https://angularjs.org/).
+
+*There is nothing much more to say...*
+
+![Screenshot](http://i.imgur.com/fOFFLFX.jpg)
