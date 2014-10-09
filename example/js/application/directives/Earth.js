@@ -50,10 +50,22 @@
                 $scope.CONFIG_FILE = 'earth-app.yml';
 
                 /**
+                 * @property objects
+                 * @type {Array}
+                 */
+                $scope.objects = [];
+
+                /**
                  * @property animationFrame
                  * @type {Number}
                  */
                 $scope.animationFrame = 0;
+
+                /**
+                 * @property isMouseDown
+                 * @type {Boolean}
+                 */
+                $scope.isMouseDown = false;
 
                 /**
                  * @property options
@@ -195,9 +207,7 @@
                         var sphere = new THREE.SphereGeometry(options.radius, options.segments, options.rings);
                         mesh       = new THREE.Mesh(sphere, material);
 
-//                        mesh.rotation.y = -1.7;
-//                        mesh.rotation.x = 1;
-
+                        $scope.objects.push(mesh);
                         scene.add(mesh);
 
                     })();
@@ -312,6 +322,17 @@
              */
             link: function link(scope, element) {
 
+                var projector        = new THREE.Projector(),
+                    particleMaterial = new THREE.SpriteCanvasMaterial({
+                    color: 0x000000,
+                    program: function program(context) {
+                        context.beginPath();
+                        context.arc(0, 0, 0.5, 0, Math.PI * 2, true);
+                        context.fill();
+                    }
+
+                });
+
                 // Read the YAML configuration document.
                 $http.get(scope.CONFIG_FILE, { cache: $cacheFactory }).then(function then(response) {
 
@@ -364,6 +385,75 @@
 
                     // Voila!
                     render();
+
+                    // Re-render the scene when the user resizes the window.
+                    $window.addEventListener('resize', function onResize() {
+
+                        camera.aspect = $window.innerWidth / $window.innerHeight;
+                        camera.updateProjectionMatrix();
+                        renderer.setSize($window.innerWidth, $window.innerHeight);
+
+                    }, false);
+
+                    var startPosition;
+
+                    document.addEventListener('mousedown', function onMouseDown(event) {
+
+                        event.preventDefault();
+
+                        var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1, 0.5);
+                        projector.unprojectVector(vector, camera);
+
+                        var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize()),
+                            intersects = raycaster.intersectObjects(scope.objects);
+
+                        // We're only interested in events taking place on the earth object.
+                        if (intersects.length > 0 && intersects[0].object === earth) {
+
+                            startPosition = { x: event.clientX, y: event.clientY };
+
+//                            intersects[0].object.material.color.setHex(Math.random() * 0xffffff);
+                            scope.isMouseDown = true;
+
+                        }
+
+                    });
+
+                    document.addEventListener('mouseup', function onMouseUp(event) {
+                        scope.isMouseDown = false;
+                        startPosition = null;
+                    });
+
+                    document.addEventListener('mousemove', function(event) {
+
+                        if (!startPosition) {
+                            return;
+                        }
+
+                        var xPosition = startPosition.x - event.clientX,
+                            yPosition = startPosition.y - event.clientY;
+
+                        /**
+                         * @method getRotation
+                         * @param model {Object}
+                         * @return {Object}
+                         */
+                        var getRotation = function getRotation(model) {
+
+                            return {
+                                x: model.rotation.x + -(yPosition / ($window.innerWidth * 3)),
+                                y: model.rotation.y + -(xPosition / ($window.innerHeight * 3))
+                            };
+
+                        };
+
+                        // Rotate the planet!
+                        earth.rotation.y  = getRotation(earth).y;
+                        earth.rotation.x  = getRotation(earth).x;
+                        clouds.rotation.y = getRotation(clouds).y;
+                        clouds.rotation.x = getRotation(clouds).x;
+
+                    });
 
                     /**
                      * @property model
