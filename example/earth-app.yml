@@ -26,6 +26,9 @@ clouds:
 
 stars:
   count: 250000
+  diameter: 2
+  material: images/stars.png
+  opacity: 0.75
 
 camera:
   z_position: 150

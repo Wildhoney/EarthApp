@@ -245,30 +245,31 @@
                  */
                 $scope.renderStars = function renderStars(scene) {
 
-                    var options      = $scope.options.earth,
+                    var options      = $scope.options.stars,
                         material     = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 }),
-                        sphere       = new THREE.SphereGeometry(options.radius, 1, 1),
-                        centerObject = new THREE.Mesh(sphere, material);
+                        sphere       = new THREE.SphereGeometry($scope.options.earth.radius, 1, 1),
+                        centerObject = new THREE.Mesh(sphere, material),
+                        random       = $window.Math.random;
 
-                    var particleCount    = $scope.options.stars.count,
-                        particles        = new THREE.Geometry(),
+                    var particles        = new THREE.Geometry(),
                         particleMaterial = new THREE.ParticleBasicMaterial({
-                            size: 2,
-                            map: THREE.ImageUtils.loadTexture('images/stars.png'),
+                            map: THREE.ImageUtils.loadTexture(options.material),
+                            size: options.diameter,
                             blending: THREE.AdditiveBlending,
-                            transparent: true,
-                            opacity: 0.75
+                            opacity: options.opacity,
+                            transparent: true
                     });
 
-                    for (var p = 0; p < particleCount; p++) {
+                    for (var index = 0; index < $scope.options.stars.count; index++) {
 
-                        var pX = Math.random() * ($window.innerWidth * 2) - 250,
-                            pY = Math.random() * ($window.innerWidth * 2) - 250,
-                            pZ = Math.random() * 1000 - 1000,
-                            particle = new THREE.Vector3(pX, pY, pZ);
+                        var xPosition = random() * ($window.innerWidth * 2) - 250,
+                            yPosition = random() * ($window.innerWidth * 2) - 250,
+                            zPosition = random() * 1000 - 1000,
+                            particle = new THREE.Vector3(xPosition, yPosition, zPosition);
 
                         // add it to the geometry
                         particles.vertices.push(particle);
+
                     }
 
                     var particleSystem = new THREE.ParticleSystem(particles, particleMaterial);
@@ -473,9 +474,6 @@
                                 'United Kingdom': { y: 4.7, x: 1 }
                             };
 
-                            // Cancel the current animation.
-//                            cancelAnimationFrame(scope.animationFrame);
-
                             var ySteps        = _countryMap[name].y / 100,
                                 xSteps        = _countryMap[name].x / 100,
                                 locationFrame = 0;
@@ -504,7 +502,6 @@
                                 }
 
                                 // Otherwise slowly move to the desired location.
-//                                locationFrame = requestAnimationFrame(renderToLocation);
                                 earth.rotation.y = _countryMap[name].y;
                                 earth.rotation.x = _countryMap[name].x;
 
